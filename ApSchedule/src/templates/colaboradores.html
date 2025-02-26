@@ -1,0 +1,273 @@
+<h1 class="text-center mt-5 nb-5 text-primary">Lista Colaboradores</h1>
+
+<div class="container">
+  <div class="card shadow">
+    <div class="card-body">
+      <form action="/user" method="POST">
+        <div class="row mb-3">
+          <div class="col">
+            <label>id_empleado</label>
+            <input type="text" class="form-control mb-3" name="id_empleado" />
+          </div>
+          <div class="col">
+            <label>Nombre</label>
+            <input type="text" class="form-control mb-3" name="nombre" />
+          </div>
+          <div class="col">
+            <label>Apellido</label>
+            <input type="text" class="form-control mb-3" name="apellido" />
+          </div>
+          <div class="col">
+            <label>Tipo de turno</label>
+            <input type="text" class="form-control mb-3" name="tipo_turno" />
+          </div>
+          <div class="col">
+            <button class="btn btn-primary mb-3 mt-4" type="submit">
+              Save
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!--table-->
+
+      <table class="table table-bordered">
+        <thead>
+          <th scope="col"># Colaborador</th>
+          <th scope="col">Nombre</th>
+          <th scope="col">Apellido</th>
+          <th scope="col">Tipo turno</th>
+          <th scope="col">Edit</th>
+          <th scope="col">Delete</th>
+        </thead>
+
+        <tbody>
+          {% for d in data%}
+          <tr>
+            <td>{{d.id_empleado}}</td>
+            <td>{{d.nombre}}</td>
+            <td>{{d.apellido}}</td>
+            <td>{{d.tipo_turno}}</td>
+            <td>
+              <button
+                class="btn btn-primary btn-sm"
+                id="btn-edit{{d.id_empleado}}"
+                data-bs-toggle="modal"
+                data-bs-target="#modal{{d.id_empleado}}"
+              >
+                Edit
+              </button>
+            </td>
+            <td>
+              <a
+                href="{{url_for('delete', id=d.id_empleado)}}"
+                class="btn btn-danger btn-sm"
+                >Delete</a
+              >
+            </td>
+          </tr>
+
+          <!--MOdal-->
+
+          <div
+            class="modal fade bd-example-modal-lg"
+            id="modal{{d.id_empleado}}"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-lg" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">
+                    {{d.nombre, d.apellido}}
+                  </h5>
+                </div>
+                <div class="modal-body">
+                  <form action="/edit/{{d.id_empleado}}" method="post">
+                    <div class="col md-3">
+                      <label>id_empleado</label>
+                      <input
+                        type="text"
+                        class="form-control mb-3"
+                        name="id_empleado"
+                        value="{{d.id_empleado}}"
+                      />
+                      <label>nombre</label>
+                      <input
+                        type="text"
+                        class="form-control mb-3"
+                        name="nombre"
+                        value="{{d.nombre}}"
+                      />
+                      <label>apellido</label>
+                      <input
+                        type="text"
+                        class="form-control mb-3"
+                        name="apellido"
+                        value="{{d.apellido}}"
+                      />
+                      <label>tipo_turno</label>
+                      <input
+                        type="text"
+                        class="form-control mb-3"
+                        name="tipo_turno"
+                        value="{{d.tipo_turno}}"
+                      />
+                    </div>
+                    <div class="container mt-5">
+                      <h5 class="mb-4">Disponibilidad</h5>
+
+                      <div class="row">
+                        <!-- Días de la semana -->
+                        {% for dia in ['Lunes', 'Martes', 'Miércoles', 'Jueves',
+                        'Viernes', 'Sábado', 'Domingo'] %}
+                        <div class="col-md-3 mb-3">
+                          <div class="card">
+                            <div class="card-header bg-primary text-white">
+                              {{ dia }}
+                            </div>
+                            <div class="card-body">
+                              {% set id_dia = loop.index %}
+                              <!-- Mapear día con su id (1 = Lunes, etc.) -->
+                              <!-- Opciones de horarios -->
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia }}][apertura_1]"
+                                value="1" id="{{ dia.lower() }}-apertura_1" {%
+                                if disponibilidad | selectattr('id_empleado',
+                                'equalto', d.id_empleado) | selectattr('id_dia',
+                                'equalto', id_dia) | map(attribute='apertura_1')
+                                | list | first == 1 %} checked {% endif %}>
+
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-apertura_1"
+                                  >7:00 - 15:00</label
+                                >
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia }}][apertura_2]"
+                                value="1" id="{{ dia.lower() }}-apertura_2" {%
+                                if disponibilidad | selectattr('id_empleado',
+                                'equalto', d.id_empleado) | selectattr('id_dia',
+                                'equalto', id_dia) | map(attribute='apertura_2')
+                                | list | first == 1 %} checked {% endif %}>
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-apertura_2"
+                                  >8:00 - 16:00</label
+                                >
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia }}][apertura_3]"
+                                value="1" id="{{ dia.lower() }}-apertura_3" {%
+                                if disponibilidad | selectattr('id_empleado',
+                                'equalto', d.id_empleado) | selectattr('id_dia',
+                                'equalto', id_dia) | map(attribute='apertura_3')
+                                | list | first == 1 %} checked {% endif %}>
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-apertura_3"
+                                  >9:00 - 17:00</label
+                                >
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia
+                                }}][intermedio_1]" value="1" id="{{ dia.lower()
+                                }}-intermedio_1" {% if disponibilidad |
+                                selectattr('id_empleado', 'equalto',
+                                d.id_empleado) | selectattr('id_dia', 'equalto',
+                                id_dia) | map(attribute='intermedio_1') | list |
+                                first == 1 %} checked {% endif %}>
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-intermedio_1"
+                                  >12:00 - 20:00</label
+                                >
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia
+                                }}][intermedio_2]" value="1" id="{{ dia.lower()
+                                }}-intermedio_2" {% if disponibilidad |
+                                selectattr('id_empleado', 'equalto',
+                                d.id_empleado) | selectattr('id_dia', 'equalto',
+                                id_dia) | map(attribute='intermedio_2') | list |
+                                first == 1 %} checked {% endif %}>
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-intermedio_2"
+                                  >13:00 - 21:00</label
+                                >
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia
+                                }}][intermedio_3]" value="1" id="{{ dia.lower()
+                                }}-intermedio_3" {% if disponibilidad |
+                                selectattr('id_empleado', 'equalto',
+                                d.id_empleado) | selectattr('id_dia', 'equalto',
+                                id_dia) | map(attribute='intermedio_3') | list |
+                                first == 1 %} checked {% endif %}>
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-intermedio_3"
+                                  >14:00 - 22:00</label
+                                >
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia }}][cierre_1]"
+                                value="1" id="{{ dia.lower() }}-cierre_1" {% if
+                                disponibilidad | selectattr('id_empleado',
+                                'equalto', d.id_empleado) | selectattr('id_dia',
+                                'equalto', id_dia) | map(attribute='cierre_1') |
+                                list | first == 1 %} checked {% endif %}>
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-cierre_1"
+                                  >15:00 - 23:00</label
+                                >
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                name="disponibilidad[{{ id_dia }}][cierre_2]"
+                                value="1" id="{{ dia.lower() }}-cierre_2" {% if
+                                disponibilidad | selectattr('id_empleado',
+                                'equalto', d.id_empleado) | selectattr('id_dia',
+                                'equalto', id_dia) | map(attribute='cierre_2') |
+                                list | first == 1 %} checked {% endif %}>
+                                <label
+                                  class="form-check-label"
+                                  for="{{ dia.lower() }}-cierre_2"
+                                  >16:00 - 00:00</label
+                                >
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-primary">
+                        Save changes
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

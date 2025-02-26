@@ -1,0 +1,99 @@
+<h1 class="text-center mt-5 nb-5 text-primary">Generar Horario</h1>
+
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      {% if category == "success" %}
+        <div class="alert alert-success">{{ message }}</div>
+      {% elif category == "error" %}
+        <div class="alert alert-danger">{{ message }}</div>
+      {% elif category == "warning" %}
+        <div class="alert alert-warning">{{ message }}</div>
+      {% else %}
+        <div class="alert alert-info">{{ message }}</div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+
+
+<div class="container">
+  <div class="card shadow">
+    <div class="card-body">
+      <div class="row mb-3">
+        <form action="/new_schedule" method="POST" target="_blank">
+          <div class="col">
+            <label>Fecha Horario</label>
+            <input type="date" id="date" name="date" />
+
+            <div class="col">
+              <div class="form-group">
+                <label for="formControlRange">Porcentajes Turnos</label>
+                <input
+                  type="range"
+                  class="form-control-range"
+                  id="porcentajeTurnoMat"
+                  name="porcentajeTurnoMat"
+                />
+                <p>
+                  Turno Matutino
+                  <span id="matBadge" class="badge bg-secondary">50</span> Turno
+                  Vespertino
+                  <span id="vespBadge" class="badge bg-secondary">50</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="form-group">
+
+             <p>Asigne un valor a cada dia de la semana (1 es el dia con mayor venta y 7 el de menor venta)</p> 
+              {% for dia in ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"] %}
+                <label class="my-1 mr-2" for="select_{{ dia }}">{{ dia }}</label>
+                <select class="custom-select my-1 mr-sm-2" id="select_{{ dia }}" name="turno_{{ dia }}" required>
+                  <option value="1" selected disabled>Seleccione...</option>
+                  {% for i in range(1, 8) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                  {% endfor %}
+                </select>
+              {% endfor %}
+            </div>
+              <br>
+              <br>
+            </div>
+
+
+            <div class="col px-5">
+             
+              <div class="row mb-3">
+                <button type="submit" class="btn btn-primary btn-lg">
+                  Generar Horario
+                </button>
+              </div>
+              
+            </div>
+                    <script>
+                      // Referencias a los elementos HTML
+                      const turnoMat =
+                        document.getElementById("porcentajeTurnoMat");
+                      const matBadge = document.getElementById("matBadge");
+                      const vespBadge = document.getElementById("vespBadge");
+
+                      // Evento para actualizar los valores dinámicamente
+                      turnoMat.addEventListener("input", function () {
+                        const matPercent = parseInt(turnoMat.value, 10);
+                        const vespPercent = 100 - matPercent;
+
+                        // Actualizar los valores mostrados
+                        matBadge.textContent = matPercent;
+                        vespBadge.textContent = vespPercent;
+                      });
+                    </script>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
